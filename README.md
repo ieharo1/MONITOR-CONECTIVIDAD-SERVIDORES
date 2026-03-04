@@ -1,50 +1,62 @@
-# DibujarFiguraGeom
+﻿# Monitor de Conectividad a Servidores - Documentacion Operativa
 
-Proyecto de Java para dibujar figuras geométricas utilizando interfaces gráficas.
+Script principal: `server-connectivity-monitor.ps1`
 
-## Descripción
+## Objetivo
+Monitorear conectividad de una lista de servidores/IP, medir latencia, guardar historico en SQL y alertar caidas.
 
-Aplicación Java que permite crear y visualizar diferentes figuras geométricas en una interfaz gráfica.
+## Funcionamiento
+1. Valida cmdlet `Test-Connection`.
+2. Recorre `Targets` configurados.
+3. Ejecuta ping (cantidad y timeout configurables).
+4. Calcula latencia promedio cuando hay respuesta.
+5. Inserta resultados en SQL (`dbo.ServerConnectivityHistory`).
+6. Notifica targets offline y errores por SMTP/Telegram.
 
-## Características
+## Prerequisitos
+- Windows Server 2019/2022
+- Permiso de red ICMP hacia targets
+- SQL Server y SMTP accesibles
+- Salida HTTPS para Telegram
 
-- Dibujo de figuras geométricas básicas
-- Interfaz gráfica intuitiva
-- Personalización de colores y tamaños
+## Configuracion
+- `Targets` (hostnames o IPs)
+- `PingCount`
+- `TimeoutSeconds`
+- `Sql.Server`, `Sql.Database`, `Sql.Table`
+- `Notification.Mail.*`
+- `Notification.Telegram.*`
 
-## Stack Tecnológico
+## Variables de entorno
+- `AUTOMATION_SQL_PASSWORD` (si SQL auth)
+- `AUTOMATION_SMTP_PASSWORD`
+- `AUTOMATION_TELEGRAM_BOT_TOKEN`
+- `AUTOMATION_TELEGRAM_CHAT_ID`
 
-- Java SE
-- Swing/AWT para GUI
+## Estructura SQL esperada (referencia)
+Tabla: `dbo.ServerConnectivityHistory`
+Campos sugeridos:
+- `ServerName`
+- `Target`
+- `IsOnline`
+- `LatencyMs`
+- `CheckedAt`
 
-## Autor
+## Como ejecutar
 
-🧑‍💻 **Isaac Haro**
-
-Ingeniero en Sistemas · Full Stack · Automatización · Data
-
-## Licencia
-
-MIT — contribuciones bienvenidas 🚀
-## Uso del script de automatización
-
-Este repositorio incluye el script empresarial: $scriptName.
-
-1. Abre PowerShell como administrador.
-2. Configura la sección CONFIG del script según tu entorno.
-3. Define credenciales seguras mediante variables de entorno:
-   - AUTOMATION_SQL_PASSWORD
-   - AUTOMATION_SMTP_PASSWORD
-   - AUTOMATION_TELEGRAM_BOT_TOKEN
-   - AUTOMATION_TELEGRAM_CHAT_ID
-4. Ejecuta:
-
-`powershell
+```powershell
+cd C:\Users\Nabetse\Downloads\server\DibujarFiguraGeom
 .\server-connectivity-monitor.ps1
-`
+```
 
-El script generará logs diarios estructurados y enviará notificaciones ante alertas o errores.
+## Programacion recomendada
+- Trigger: cada 5 minutos o 15 minutos
+- Definir SLA de latencia y disponibilidad para interpretar alertas
 
+## Seguridad
+- Separar red de monitoreo
+- Proteger credenciales en variables de entorno
+- Auditar cambios de targets y umbrales
 ---
 ## ‍ Desarrollado por Isaac Esteban Haro Torres
 **Ingeniero en Sistemas · Full Stack · Automatización · Data**
